@@ -11,20 +11,35 @@ import "./App.css";
 //useEffect will be used whenever the searchfield changes.
 
 export default function App() {
-  const [robots, setRobots] = useState();
-  const [searchfield, setSearchfield] = useState();
+  const [robots, setRobots] = useState([]);
+  const [searchfield, setSearchfield] = useState("");
 
   useEffect(() => {
     fetch("https://jsonplaceholder.typicode.com/users")
       .then((response) => response.json())
       .then((users) => {
-        this.setState({ robots: users });
+        setRobots(users);
       });
-  }, [searchfield]);
+  }, []);
 
   function handleChange(e) {
-    setRobots(e.target.value);
+    setSearchfield({ searchfield: e.target.value });
   }
+
+  const filteredRobots = robots.filter((robot) => {
+    return robot.name.toLowerCase().includes(searchfield.toLowerCase());
+  });
+  return !robots.length ? (
+    <h1>Loading</h1>
+  ) : (
+    <div className="tc">
+      <h1 className="f1">RoboFriends</h1>
+      <SearchBox searchChange={handleChange} />
+      <Scroll>
+        <CardList robots={filteredRobots} />
+      </Scroll>
+    </div>
+  );
 }
 
 ////////////////
@@ -45,6 +60,9 @@ class App extends Component {
       });
   }
 
+  //this creates a class method. it updates the searchfield value in the components state
+  //it is using arrow notation becauase it automatically binds to this. if it were using traditional function
+  //notation we would have to explicitly bind it.
   onSearchChange = (event) => {
     this.setState({ searchfield: event.target.value });
   };
